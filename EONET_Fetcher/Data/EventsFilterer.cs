@@ -53,6 +53,10 @@ namespace EONET_Fetcher.Data
             {
                 eventsList = eventsListEONET.Events.Where(e => e.Sources.Any(c => c.Url.ToLower().Contains(searchString))).ToList();
             }
+            else if (filterBy.ToLower() == "id")
+            {
+                eventsList = eventsListEONET.Events.Where(e => e.Id.ToLower().Contains(searchString)).ToList();
+            }
 
             return eventsList;
         }
