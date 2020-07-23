@@ -1,5 +1,6 @@
 ﻿using EONET_Fetcher.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,6 +12,6 @@ namespace EONET_Fetcher.Models
 
         public string Type { get; set; }
 
-        public float[] Coordinates { get; set; }
+        public List<Object> Coordinates { get; set; }
     }
 }
