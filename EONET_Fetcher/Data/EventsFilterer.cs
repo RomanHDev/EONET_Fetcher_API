@@ -41,8 +41,6 @@ namespace EONET_Fetcher.Data
             else if (filterBy.ToLower() == "title")
             {
                 eventsList = eventsListEONET.Events.Where(e => e.Title.ToLower().Contains(searchString)).ToList();
-                //var tmpeventsList = eventsListEONET.Events.Where(e => e.Title.ToLower().Contains(searchString)).ToList();
-                //tmpeventsList = tmpeventsList;
             }
             else if (filterBy.ToLower() == "link")
             {
