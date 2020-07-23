@@ -91,7 +91,7 @@ namespace EONET_Fetcher.Controllers
 
         // GET: api/Events/
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetEventEONET(string id, [FromQuery] string sortBy, [FromQuery] string sortOrder, 
+        public async Task<ActionResult> GetEventEONET([FromRoute]string id, [FromQuery] string sortBy, [FromQuery] string sortOrder, 
             [FromQuery] string searchString, [FromQuery] string filterBy)
         {
             var urlsResolver = new UrlsResolver();
@@ -105,22 +105,22 @@ namespace EONET_Fetcher.Controllers
 
                 if (httpResponse.Content is object && httpResponse.Content.Headers.ContentType.MediaType == "application/json")
                 {
-                    //try
-                    //{
+                    try
+                    {
                         var contentStream = await httpResponse.Content.ReadAsStreamAsync();
                         using var streamReader = new StreamReader(contentStream);
                         using var jsonReader = new JsonTextReader(streamReader);
                         JsonSerializer serializer = new JsonSerializer();
                         eventsListEONET = serializer.Deserialize<EventsListEONET>(jsonReader);
-                    //}
-                    //catch (JsonException) // Invalid JSON
-                    //{
-                    //    return NotFound("Invalid JSON.");
-                    //}
-                    //catch (Exception)
-                    //{
-                    //    return NotFound();
-                    //}
+                    }
+                    catch (JsonException) // Invalid JSON
+                    {
+                        return NotFound("Invalid JSON.");
+                    }
+                    catch (Exception)
+                    {
+                        return NotFound();
+                    }
                 }
 
                 if (eventsListEONET == null)
