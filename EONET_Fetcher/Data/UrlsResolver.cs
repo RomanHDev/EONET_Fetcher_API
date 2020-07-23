@@ -31,6 +31,10 @@ namespace EONET_Fetcher.Data
 
             return requestUri;
         }
+        public Uri FormatRequestEventUri(string sourceUrl, string eventsUrlKey)
+        {
+            return new Uri(sourceUrl + "/" + eventsUrlKey);
+        }
 
         public void FormatDays(string days, IDictionary<string, string> queryParams)
         {
