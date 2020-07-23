@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EONET_Fetcher", "EONET_Fetcher\EONET_Fetcher.csproj", "{806FA84E-7FC2-440A-B233-3DAF24EA43EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{806FA84E-7FC2-440A-B233-3DAF24EA43EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{806FA84E-7FC2-440A-B233-3DAF24EA43EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{806FA84E-7FC2-440A-B233-3DAF24EA43EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{806FA84E-7FC2-440A-B233-3DAF24EA43EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CA8181F0-4BA2-4627-B093-62775C48903E}
+	EndGlobalSection
+EndGlobal
