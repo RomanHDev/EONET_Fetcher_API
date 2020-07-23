@@ -46,7 +46,7 @@ namespace EONET_Fetcher.Data
 
         public void FormatStatus(string status, IDictionary<string, string> queryParams)
         {
-            if (status.ToLower() != null)
+            if (status != null)
             {
                 var st = status.ToLower();
                 var open = Enum.GetName(typeof(Status), Status.Open).ToLower();
