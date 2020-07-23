@@ -11,9 +11,8 @@ namespace EONET_Fetcher.Data
         public void Filter(string searchString, string filterBy, EventsListEONET eventsListEONET)
         {
             var eventsList = new List<EventEONET>();
-            if (filterBy != null)
+            if (filterBy != null && filterBy != "")
             {
-                var eventsFilterer = new EventsFilterer();
                 var tmpEventsList = FilterBy(searchString.ToLower(), filterBy.ToLower(), eventsListEONET, eventsList);
                 eventsList = tmpEventsList;
             }
@@ -50,7 +49,7 @@ namespace EONET_Fetcher.Data
             {
                 eventsList = eventsListEONET.Events.Where(e => e.Categories.Any(c => c.Title.ToLower().Contains(searchString))).ToList();
             }
-            else if (filterBy.ToLower() == "sources")
+            else if (filterBy.ToLower() == "source")
             {
                 eventsList = eventsListEONET.Events.Where(e => e.Sources.Any(c => c.Url.ToLower().Contains(searchString))).ToList();
             }
@@ -58,6 +57,42 @@ namespace EONET_Fetcher.Data
             return eventsList;
         }
 
+        public void FilterEvent(string searchString, string filterBy, EventEONET eventEONET)
+        {
+            if (filterBy != null && filterBy != "")
+            {
+                eventEONET = FilterEventBy(searchString, filterBy, eventEONET);
+            }
+            else
+            {
+                var eventCategories = eventEONET.Categories
+                    .Where(c => c.Title.ToLower().Contains(searchString)).ToList();
+                var eventSources = eventEONET.Sources
+                    .Where(s => s.Url.ToLower().Contains(searchString)).ToList();
+                var eventGeometries = eventEONET.Geometries
+                    .Where(c => c.Date.ToString().ToLower().Contains(searchString)).ToList();
+                eventEONET.Sources = eventSources;
+                eventEONET.Geometries = eventGeometries;
+                eventEONET.Categories = eventCategories;
+            }
+        }
+        private EventEONET FilterEventBy(string searchString, string filterBy, EventEONET eventEONET)
+        {
+            var filteredEvent = eventEONET;
+            if (filterBy.ToLower() == "category")
+            {
+                filteredEvent.Categories = eventEONET.Categories.Where(e => e.Title.ToLower().Contains(searchString)).ToList();
+            }
+            else if (filterBy.ToLower() == "geometry")
+            {
+                filteredEvent.Geometries = eventEONET.Geometries.Where(e => e.Date.ToString().Contains(searchString)).ToList();
+            }
+            else if (filterBy.ToLower() == "source")
+            {
+                filteredEvent.Sources = eventEONET.Sources.Where(e => e.Url.ToLower().Contains(searchString)).ToList();
+            }
 
+            return filteredEvent;
+        }
     }
 }
