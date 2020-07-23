@@ -32,55 +32,123 @@ namespace EONET_Fetcher.Controllers
             [FromQuery] string status, [FromQuery] string sortBy, [FromQuery] string sortOrder, [FromQuery] string searchString, [FromQuery] string filterBy)
         {
             var urlsResolver = new UrlsResolver();
-            var requestUri = urlsResolver.FormatRequestUri(_sourceUrl,_eventsUrlKey,limit,days,source,status);
+            var requestUri = urlsResolver.FormatRequestUri(_sourceUrl, _eventsUrlKey, limit, days, source, status);
 
             var httpResponse = await _httpClient.GetEventsAsync(requestUri, HttpCompletionOption.ResponseHeadersRead);
-
-            httpResponse.EnsureSuccessStatusCode();
-            var eventsListEONET = new EventsListEONET();
-            if (httpResponse.Content is object && httpResponse.Content.Headers.ContentType.MediaType == "application/json")
+            try
             {
-                //var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-                //var json = await httpResponse.Content.ReadAsStringAsync();
-                
-                try
+                httpResponse.EnsureSuccessStatusCode();
+                var eventsListEONET = new EventsListEONET();
+                if (httpResponse.Content is object && httpResponse.Content.Headers.ContentType.MediaType == "application/json")
                 {
-                    var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+                    //var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+                    //var json = await httpResponse.Content.ReadAsStringAsync();
 
-                    using var streamReader = new StreamReader(contentStream);
-                    using var jsonReader = new JsonTextReader(streamReader);
+                    try
+                    {
+                        var contentStream = await httpResponse.Content.ReadAsStreamAsync();
 
-                    JsonSerializer serializer = new JsonSerializer();
+                        using var streamReader = new StreamReader(contentStream);
+                        using var jsonReader = new JsonTextReader(streamReader);
 
-                    eventsListEONET = serializer.Deserialize<EventsListEONET>(jsonReader);
-                    
+                        JsonSerializer serializer = new JsonSerializer();
+
+                        eventsListEONET = serializer.Deserialize<EventsListEONET>(jsonReader);
+
+                    }
+                    catch (JsonException) // Invalid JSON
+                    {
+                        return NotFound("Invalid JSON.");
+                    }
+                    catch (Exception)
+                    {
+                        return NotFound();
+                    }
                 }
-                catch (JsonException) // Invalid JSON
-                {
-                    return NotFound("Invalid JSON.");
-                }
-                catch (Exception)
+
+                if (eventsListEONET == null)
                 {
                     return NotFound();
                 }
-            }
+                if (searchString != null)
+                {
+                    var filterer = new EventsFilterer();
+                    filterer.Filter(searchString, filterBy, eventsListEONET);
+                }
+                if (sortBy != null && sortOrder != null)
+                {
+                    var eventsSorter = new EventsSorter();
+                    eventsSorter.Sort(eventsListEONET, sortOrder, sortBy);
+                }
 
-            if (eventsListEONET == null)
-            {
-                return NotFound();
+                return Ok(JsonConvert.SerializeObject(eventsListEONET, Formatting.Indented));
             }
-            if (searchString != null)
+            catch (HttpRequestException)
             {
+                return NotFound("Problems with the source endpoint response");
+            }
+        }
+
+        // GET: api/Events/
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetEventEONET(string id, [FromQuery] string sortBy, [FromQuery] string sortOrder, 
+            [FromQuery] string searchString, [FromQuery] string filterBy)
+        {
+            var urlsResolver = new UrlsResolver();
+            var requestUri = urlsResolver.FormatRequestEventUri(_sourceUrl, _eventsUrlKey);
+            var httpResponse = await _httpClient.GetEventsAsync(requestUri, HttpCompletionOption.ResponseHeadersRead);
+
+            try
+            {
+                httpResponse.EnsureSuccessStatusCode();
+                var eventsListEONET = new EventsListEONET();
+
+                if (httpResponse.Content is object && httpResponse.Content.Headers.ContentType.MediaType == "application/json")
+                {
+                    //try
+                    //{
+                        var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+                        using var streamReader = new StreamReader(contentStream);
+                        using var jsonReader = new JsonTextReader(streamReader);
+                        JsonSerializer serializer = new JsonSerializer();
+                        eventsListEONET = serializer.Deserialize<EventsListEONET>(jsonReader);
+                    //}
+                    //catch (JsonException) // Invalid JSON
+                    //{
+                    //    return NotFound("Invalid JSON.");
+                    //}
+                    //catch (Exception)
+                    //{
+                    //    return NotFound();
+                    //}
+                }
+
+                if (eventsListEONET == null)
+                {
+                    return NotFound();
+                }
                 var filterer = new EventsFilterer();
-                filterer.Filter(searchString, filterBy, eventsListEONET);
-            }
-            if (sortBy != null && sortOrder != null)
-            {
-                var eventsSorter = new EventsSorter();
-                eventsSorter.Sort(eventsListEONET,sortOrder,sortBy);
-            }
+                filterer.Filter(id, "id", eventsListEONET);
+                if (eventsListEONET.Events == null || eventsListEONET.Events.Count == 0)
+                {
+                    return NotFound(id);
+                }
+                if (searchString != null)
+                {
+                    filterer.FilterEvent(searchString, filterBy, eventsListEONET.Events[0]);
+                }
+                if (sortBy != null && sortOrder != null)
+                {
+                    var eventsSorter = new EventsSorter();
+                    eventsSorter.SortEvent(eventsListEONET.Events[0], sortOrder, sortBy);
+                }
 
-            return Ok(JsonConvert.SerializeObject(eventsListEONET, Formatting.Indented));
+                return Ok(JsonConvert.SerializeObject(eventsListEONET.Events[0], Formatting.Indented));
+            }
+            catch (HttpRequestException)
+            {
+                return NotFound("Problems with the source endpoint response");
+            }
         }
     }
 }
